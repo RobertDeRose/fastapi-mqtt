@@ -201,9 +201,14 @@ class FastMQTT:
 
         retain:
         """
-        return self.client.publish(
-            message_or_topic, payload=payload, qos=qos, retain=retain, **kwargs
-        )
+        if self.client.is_connected:
+            return self.client.publish(
+                message_or_topic, payload=payload, qos=qos, retain=retain, **kwargs
+            )
+        else:
+            self._logger.debug(
+                "Can't publish to %s because not currently connected", message_or_topic
+            )
 
     def unsubscribe(self, topic: str, **kwargs):
         """
@@ -215,7 +220,9 @@ class FastMQTT:
         if topic in self.subscriptions:
             del self.subscriptions[topic]
 
-        return self.client.unsubscribe(topic, **kwargs)
+        if self.client.is_connected:
+            return self.client.unsubscribe(topic, **kwargs)
+
 
     async def mqtt_startup(self) -> None:
         """Initial connection for MQTT client, for lifespan startup."""

@@ -1,7 +1,7 @@
 from ssl import SSLContext
-from typing import Optional, Union
+from typing import Optional, Union, Literal
 
-from gmqtt.mqtt.constants import MQTTv50
+from gmqtt.mqtt.constants import MQTTv50, MQTTv311
 from pydantic import BaseModel, ConfigDict
 
 
@@ -25,9 +25,12 @@ class MQTTConfig(BaseModel):
     password: password for authentication, defaults to None
 
     version: MQTT broker version to use, defaults to  MQTTv50.
+        Accepted values are 4 or 5. Defaults to 5.
+        Protocol version 3.1.1 is represented by 4.
+
         According to gmqtt.Client if the broker does not support 5.0 protocol version,
-        responds with proper CONNACK reason code,
-        the client will downgrade to 3.1 and reconnect automatically.
+        responds with proper CONNACK reason code, the client will downgrade to 3.1 and
+        reconnect automatically.
 
     reconnect_retries && reconnect_delay: Connected MQTT client always tries to reconnect,
         in case of lost connections. The number of reconnect attempts is unlimited.
@@ -47,7 +50,7 @@ class MQTTConfig(BaseModel):
     keepalive: int = 60
     username: Optional[str] = None
     password: Optional[str] = None
-    version: int = MQTTv50
+    version: Literal[MQTTv311,  MQTTv50] = MQTTv50 # type: ignore
 
     reconnect_retries: Optional[int] = 1
     reconnect_delay: Optional[int] = 6
